@@ -1,5 +1,92 @@
-/api
-  /render
-    performanceiq.ts
-package.json
-vercel.json
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PerformanceIQ API",
+    "description": "API for rendering performance reports",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/render/performanceiq": {
+      "post": {
+        "summary": "Render a performance report",
+        "description": "Generates an HTML performance report based on provided measures and metadata",
+        "operationId": "renderPerformanceReport",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "organization_name": {
+                    "type": "string",
+                    "description": "Name of the organization"
+                  },
+                  "reporting_period": {
+                    "type": "string",
+                    "description": "The reporting period for the performance data"
+                  },
+                  "measures": {
+                    "type": "array",
+                    "description": "List of performance measures",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for the measure"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the measure"
+                        },
+                        "score": {
+                          "type": "number",
+                          "description": "Actual score achieved"
+                        },
+                        "target": {
+                          "type": "number",
+                          "description": "Target score"
+                        }
+                      },
+                      "required": ["id", "name", "score", "target"]
+                    }
+                  }
+                },
+                "required": ["organization_name", "reporting_period", "measures"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated HTML report",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed - only POST requests are accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Method Not Allowed"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
