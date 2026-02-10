@@ -13,14 +13,19 @@ export default function handler(req, res) {
         Math.abs(gap) <= 2 ? "NEAR" :
         "BELOW";
 
+      const statusColor =
+        status === "MEETS" ? "bg-green-900 text-green-200" :
+        status === "NEAR" ? "bg-yellow-900 text-yellow-200" :
+        "bg-red-900 text-red-200";
+
       return `
         <tr>
-          <td>${m.id}</td>
-          <td>${m.name}</td>
-          <td>${m.score}%</td>
-          <td>${m.target}%</td>
-          <td>${gap}%</td>
-          <td>${status}</td>
+          <td class="px-4 py-2">${m.id}</td>
+          <td class="px-4 py-2">${m.name}</td>
+          <td class="px-4 py-2">${m.score}%</td>
+          <td class="px-4 py-2">${m.target}%</td>
+          <td class="px-4 py-2">${gap}%</td>
+          <td class="px-4 py-2"><span class="${statusColor} px-2 py-1 rounded font-semibold inline-block">${status}</span></td>
         </tr>
       `;
     })
@@ -39,12 +44,12 @@ export default function handler(req, res) {
       <table class="w-full border border-slate-700">
         <thead class="bg-slate-800">
           <tr>
-            <th>ID</th>
-            <th>Measure</th>
-            <th>Score</th>
-            <th>Target</th>
-            <th>Gap</th>
-            <th>Status</th>
+            <th class="px-4 py-2">ID</th>
+            <th class="px-4 py-2">Measure</th>
+            <th class="px-4 py-2">Score</th>
+            <th class="px-4 py-2">Target</th>
+            <th class="px-4 py-2">Gap</th>
+            <th class="px-4 py-2">Status</th>
           </tr>
         </thead>
         <tbody>
