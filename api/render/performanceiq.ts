@@ -1,16 +1,42 @@
-export default function handler(req, res) {
+type Measure = {
+  id: string;
+  name: string;
+  score: number;
+  target: number;
+};
+
+type RequestBody = {
+  organization_name?: string;
+  reporting_period?: string;
+  measures?: Measure[];
+};
+
+type ApiRequest = {
+  method?: string;
+  body?: RequestBody;
+};
+
+type ApiResponse = {
+  status: (code: number) => ApiResponse;
+  send: (body: string) => void;
+  setHeader: (name: string, value: string) => void;
+};
+
+export default function handler(req: ApiRequest, res: ApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).send("Method Not Allowed");
   }
 
-  const { organization_name, reporting_period, measures } = req.body;
+  const { organization_name, reporting_period, measures } =
+    (req.body ?? {}) as RequestBody;
 
   const rows = (measures || [])
-    .map(m => {
-      const gap = (m.score - m.target).toFixed(1);
+    .map((m: Measure) => {
+      const gapValue = m.score - m.target;
+      const gap = gapValue.toFixed(1);
       const status =
         m.score >= m.target ? "MEETS" :
-        Math.abs(gap) <= 2 ? "NEAR" :
+        Math.abs(gapValue) <= 2 ? "NEAR" :
         "BELOW";
 
       return `
