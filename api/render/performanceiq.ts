@@ -1,22 +1,69 @@
-export default function handler(req, res) {
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+interface Measure {
+  id: string;
+  name: string;
+  score: number;
+  target: number;
+}
+
+interface RequestBody {
+  organization_name: string;
+  reporting_period: string;
+  measures: Measure[];
+}
+
+function escapeHtml(unsafe: string): string {
+  if (unsafe == null) return '';
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+export default function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).send("Method Not Allowed");
   }
 
-  const { organization_name, reporting_period, measures } = req.body;
+  const { organization_name, reporting_period, measures } = req.body as RequestBody;
+
+  // Validate required fields
+  if (typeof organization_name !== 'string' || organization_name.trim() === '' ||
+      typeof reporting_period !== 'string' || reporting_period.trim() === '' ||
+      !Array.isArray(measures)) {
+    return res.status(400).json({ 
+      error: "Missing required fields: organization_name, reporting_period, and measures are required" 
+    });
+  }
+
+  // Validate each measure has required fields
+  for (const measure of measures) {
+    if (typeof measure.id !== 'string' || measure.id.trim() === '' ||
+        typeof measure.name !== 'string' || measure.name.trim() === '' ||
+        typeof measure.score !== 'number' || 
+        typeof measure.target !== 'number') {
+      return res.status(400).json({ 
+        error: "Each measure must have id, name, score, and target fields" 
+      });
+    }
+  }
 
   const rows = (measures || [])
     .map(m => {
-      const gap = (m.score - m.target).toFixed(1);
+      const gapValue = m.score - m.target;
       const status =
         m.score >= m.target ? "MEETS" :
-        Math.abs(gap) <= 2 ? "NEAR" :
+        Math.abs(gapValue) <= 2 ? "NEAR" :
         "BELOW";
+      const gap = gapValue.toFixed(1);
 
       return `
         <tr>
-          <td>${m.id}</td>
-          <td>${m.name}</td>
+          <td>${escapeHtml(m.id)}</td>
+          <td>${escapeHtml(m.name)}</td>
           <td>${m.score}%</td>
           <td>${m.target}%</td>
           <td>${gap}%</td>
@@ -33,8 +80,8 @@ export default function handler(req, res) {
       <title>PerformanceIQ Report</title>
     </head>
     <body class="bg-slate-900 text-white p-8">
-      <h1 class="text-3xl font-bold mb-2">${organization_name}</h1>
-      <p class="text-slate-400 mb-6">${reporting_period}</p>
+      <h1 class="text-3xl font-bold mb-2">${escapeHtml(organization_name)}</h1>
+      <p class="text-slate-400 mb-6">${escapeHtml(reporting_period)}</p>
 
       <table class="w-full border border-slate-700">
         <thead class="bg-slate-800">
