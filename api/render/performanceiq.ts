@@ -14,7 +14,7 @@ interface RequestBody {
 }
 
 function escapeHtml(unsafe: string): string {
-  if (!unsafe) return '';
+  if (unsafe == null) return '';
   return String(unsafe)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -31,7 +31,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   const { organization_name, reporting_period, measures } = req.body as RequestBody;
 
   // Validate required fields
-  if (!organization_name || !reporting_period || !Array.isArray(measures)) {
+  if (typeof organization_name !== 'string' || organization_name.trim() === '' ||
+      typeof reporting_period !== 'string' || reporting_period.trim() === '' ||
+      !Array.isArray(measures)) {
     return res.status(400).json({ 
       error: "Missing required fields: organization_name, reporting_period, and measures are required" 
     });
@@ -39,7 +41,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
 
   // Validate each measure has required fields
   for (const measure of measures) {
-    if (!measure.id || !measure.name || typeof measure.score !== 'number' || typeof measure.target !== 'number') {
+    if (typeof measure.id !== 'string' || measure.id.trim() === '' ||
+        typeof measure.name !== 'string' || measure.name.trim() === '' ||
+        typeof measure.score !== 'number' || 
+        typeof measure.target !== 'number') {
       return res.status(400).json({ 
         error: "Each measure must have id, name, score, and target fields" 
       });
