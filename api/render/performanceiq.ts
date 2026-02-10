@@ -1,15 +1,15 @@
+const STATUS_CONFIG = {
+  MEETS: "bg-green-900 text-green-200",
+  NEAR: "bg-yellow-900 text-yellow-200",
+  BELOW: "bg-red-900 text-red-200"
+};
+
 export default function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).send("Method Not Allowed");
   }
 
   const { organization_name, reporting_period, measures } = req.body;
-
-  const statusConfig = {
-    MEETS: "bg-green-900 text-green-200",
-    NEAR: "bg-yellow-900 text-yellow-200",
-    BELOW: "bg-red-900 text-red-200"
-  };
 
   const rows = (measures || [])
     .map(m => {
@@ -19,7 +19,7 @@ export default function handler(req, res) {
         Math.abs(gap) <= 2 ? "NEAR" :
         "BELOW";
 
-      const statusColor = statusConfig[status];
+      const statusColor = STATUS_CONFIG[status] || "bg-gray-900 text-gray-200";
 
       return `
         <tr>
