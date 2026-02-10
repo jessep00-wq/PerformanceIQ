@@ -5,6 +5,12 @@ export default function handler(req, res) {
 
   const { organization_name, reporting_period, measures } = req.body;
 
+  const statusConfig = {
+    MEETS: "bg-green-900 text-green-200",
+    NEAR: "bg-yellow-900 text-yellow-200",
+    BELOW: "bg-red-900 text-red-200"
+  };
+
   const rows = (measures || [])
     .map(m => {
       const gap = (m.score - m.target).toFixed(1);
@@ -13,10 +19,7 @@ export default function handler(req, res) {
         Math.abs(gap) <= 2 ? "NEAR" :
         "BELOW";
 
-      const statusColor =
-        status === "MEETS" ? "bg-green-900 text-green-200" :
-        status === "NEAR" ? "bg-yellow-900 text-yellow-200" :
-        "bg-red-900 text-red-200";
+      const statusColor = statusConfig[status];
 
       return `
         <tr>
