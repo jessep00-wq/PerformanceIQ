@@ -2,7 +2,7 @@ const STATUS_CONFIG = {
   MEETS: "bg-green-900 text-green-200",
   NEAR: "bg-yellow-900 text-yellow-200",
   BELOW: "bg-red-900 text-red-200"
-};
+} as const;
 
 export default function handler(req, res) {
   if (req.method !== "POST") {
