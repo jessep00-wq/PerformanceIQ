@@ -7,10 +7,11 @@ export default function handler(req, res) {
 
   const rows = (measures || [])
     .map(m => {
-      const gap = (m.score - m.target).toFixed(1);
+      const gapNum = m.score - m.target;
+      const gap = gapNum.toFixed(1);
       const status =
         m.score >= m.target ? "MEETS" :
-        Math.abs(gap) <= 2 ? "NEAR" :
+        Math.abs(gapNum) <= 2 ? "NEAR" :
         "BELOW";
 
       return `
